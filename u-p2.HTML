@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+```
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>City Care Hospital | 3D Healthcare</title>
+
+<style>
+
+    /* =========================
+       RESET
+    ========================== */
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        scroll-behavior: smooth;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f1f8fb;
+        color: #123;
+        overflow-x: hidden;
+    }
+
+
+    /* =========================
+       ANIMATED BACKGROUND
+    ========================== */
+
+    .background {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -5;
+        background:
+            radial-gradient(
+                circle at 10% 20%,
+                rgba(6,182,212,.18),
+                transparent 25%
+            ),
+            radial-gradient(
+                circle at 90% 80%,
+                rgba(14,165,233,.15),
+                transparent 25%
+            ),
+            #f1f8fb;
+    }
+
+    .bubble {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(14,165,233,.12);
+        animation: floatBubble 12s infinite ease-in-out;
+    }
+
+    .bubble:nth-child(1) {
+        width: 180px;
+        height: 180px;
+        left: 5%;
+        top: 20%;
+    }
+
+    .bubble:nth-child(2) {
+        width: 120px;
+        height: 120px;
+        right: 10%;
+        top: 40%;
+        animation-delay: 2s;
+    }
+
+    .bubble:nth-child(3) {
+        width: 220px;
+        height: 220px;
+        right: 20%;
+        bottom: 5%;
+        animation-delay: 4s;
+    }
+
+    @keyframes floatBubble {
+
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-40px);
+        }
+
+    }
+
+
+    /* =========================
+       NAVBAR
+    ========================== */
+
+    nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        padding: 18px 7%;
+
+        background: rgba(255,255,255,.85);
+        backdrop-filter: blur(15px);
+
+        box-shadow: 0 5px 20px rgba(0,0,0,.08);
+    }
+
+    .logo {
+        color: #0284c7;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 25px;
+    }
+
+    .nav-links a {
+        color: #123;
+        text-decoration: none;
+        font-weight: bold;
+        transition: .3s;
+    }
+
+    .nav-links a:hover {
+        color: #0284c7;
+    }
+
+    .menu {
+        display: none;
+        font-size: 28px;
+        cursor: pointer;
+    }
+
+
+    /* =========================
+       HERO
+    ========================== */
+
+    .hero {
+        min-height: 100vh;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 120px 8% 60px;
+        gap: 50px;
+    }
+
+    .hero-text {
+        max-width: 600px;
+        animation: slideIn 1s ease;
+    }
+
+    .hero-text h1 {
+        font-size: clamp(45px, 7vw, 75px);
+        line-height: 1.05;
+        color: #0f172a;
+        margin-bottom: 20px;
+    }
+
+    .gradient {
+        background:
+            linear-gradient(
+                90deg,
+                #0284c7,
+                #06b6d4,
+                #0ea5e9
+            );
+
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+
+    .hero-text p {
+        color: #475569;
+        font-size: 19px;
+        margin-bottom: 30px;
+    }
+
+
+    /* =========================
+       BUTTONS
+    ========================== */
+
+    .btn {
+        display: inline-block;
+        padding: 14px 25px;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: bold;
+        transition: .3s;
+    }
+
+    .primary {
+        background:
+            linear-gradient(
+                90deg,
+                #0284c7,
+                #06b6d4
+            );
+
+        color: white;
+    }
+
+    .secondary {
+        background: white;
+        color: #0284c7;
+        border: 2px solid #0284c7;
+    }
+
+    .btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(2,132,199,.25);
+    }
+
+
+    /* =========================
+       3D MEDICAL CROSS
+    ========================== */
+
+    .scene {
+        width: 430px;
+        height: 430px;
+        perspective: 1000px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .medical-box {
+        width: 230px;
+        height: 230px;
+
+        position: relative;
+
+        transform-style: preserve-3d;
+
+        transform:
+            rotateX(-15deg)
+            rotateY(25deg);
+
+        animation: medicalFloat 5s infinite ease-in-out;
+    }
+
+    .box-front,
+    .box-side,
+    .box-top {
+        position: absolute;
+
+        background:
+            linear-gradient(
+                135deg,
+                #0284c7,
+                #06b6d4
+            );
+
+        border: 2px solid rgba(255,255,255,.6);
+    }
+
+    .box-front {
+        width: 230px;
+        height: 230px;
+
+        transform:
+            translateZ(115px);
+    }
+
+    .box-side {
+        width: 230px;
+        height: 230px;
+
+        transform:
+            rotateY(90deg)
+            translateZ(115px);
+    }
+
+    .box-top {
+        width: 230px;
+        height: 230px;
+
+        transform:
+            rotateX(90deg)
+            translateZ(115px);
+    }
+
+
+    /* Medical Cross */
+
+    .cross {
+        position: absolute;
+        width: 110px;
+        height: 110px;
+
+        left: 60px;
+        top: 60px;
+    }
+
+    .cross::before,
+    .cross::after {
+        content: "";
+
+        position: absolute;
+
+        background: white;
+
+        border-radius: 8px;
+    }
+
+    .cross::before {
+        width: 35px;
+        height: 110px;
+
+        left: 37px;
+    }
+
+    .cross::after {
+        width: 110px;
+        height: 35px;
+
+        top: 37px;
+    }
+
+    @keyframes medicalFloat {
+
+        0%, 100% {
+            transform:
+                rotateX(-15deg)
+                rotateY(25deg)
+                translateY(0);
+        }
+
+        50% {
+            transform:
+                rotateX(-15deg)
+                rotateY(25deg)
+                translateY(-25px);
+        }
+
+    }
+
+
+    /* =========================
+       SECTIONS
+    ========================== */
+
+    section {
+        padding: 90px 8%;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 40px;
+        color: #0369a1;
+        margin-bottom: 12px;
+    }
+
+    .section-text {
+        text-align: center;
+        max-width: 750px;
+        margin: auto auto 45px;
+        color: #64748b;
+    }
+
+
+    /* =========================
+       ABOUT
+    ========================== */
+
+    .about-card {
+        max-width: 900px;
+        margin: auto;
+
+        padding: 40px;
+
+        background: rgba(255,255,255,.8);
+        border-radius: 25px;
+
+        box-shadow:
+            0 15px 40px rgba(15,23,42,.1);
+
+        border: 1px solid #dbeafe;
+
+        transform-style: preserve-3d;
+
+        transition: .4s;
+    }
+
+    .about-card:hover {
+        transform:
+            perspective(1000px)
+            rotateX(4deg)
+            rotateY(-4deg)
+            translateZ(15px);
+    }
+
+    .about-card p {
+        text-align: center;
+        color: #475569;
+        font-size: 18px;
+    }
+
+
+    /* =========================
+       STATS
+    ========================== */
+
+    .stats {
+        margin-top: 50px;
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(auto-fit, minmax(180px,1fr));
+
+        gap: 20px;
+    }
+
+    .stat {
+        background: white;
+        padding: 30px;
+        text-align: center;
+        border-radius: 20px;
+
+        box-shadow:
+            0 10px 25px rgba(0,0,0,.08);
+    }
+
+    .stat h2 {
+        color: #0284c7;
+        font-size: 40px;
+    }
+
+    .stat p {
+        color: #64748b;
+    }
+
+
+    /* =========================
+       DEPARTMENTS
+    ========================== */
+
+    .departments {
+        display: grid;
+
+        grid-template-columns:
+            repeat(auto-fit,minmax(220px,1fr));
+
+        gap: 25px;
+    }
+
+    .department {
+        padding: 30px;
+        min-height: 240px;
+
+        text-align: center;
+
+        background: white;
+
+        border-radius: 20px;
+
+        border-top: 5px solid #0284c7;
+
+        box-shadow:
+            0 10px 25px rgba(0,0,0,.08);
+
+        transition: .4s;
+
+        transform-style: preserve-3d;
+    }
+
+    .department:hover {
+        transform:
+            perspective(1000px)
+            rotateX(8deg)
+            rotateY(-8deg)
+            translateY(-12px);
+
+        box-shadow:
+            0 25px 45px rgba(2,132,199,.2);
+    }
+
+    .department-icon {
+        font-size: 55px;
+        margin-bottom: 15px;
+
+        transform:
+            translateZ(35px);
+    }
+
+    .department h3 {
+        color: #0369a1;
+        margin-bottom: 10px;
+
+        transform:
+            translateZ(25px);
+    }
+
+    .department p {
+        color: #64748b;
+    }
+
+
+    /* =========================
+       DOCTORS
+    ========================== */
+
+    .doctors {
+        display: grid;
+
+        grid-template-columns:
+            repeat(auto-fit,minmax(230px,1fr));
+
+        gap: 25px;
+    }
+
+    .doctor {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        text-align: center;
+
+        box-shadow:
+            0 10px 25px rgba(0,0,0,.08);
+
+        transition: .3s;
+    }
+
+    .doctor:hover {
+        transform: translateY(-10px);
+    }
+
+    .doctor-avatar {
+        width: 90px;
+        height: 90px;
+
+        margin: auto auto 15px;
+
+        border-radius: 50%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 40px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #bae6fd,
+                #67e8f9
+            );
+    }
+
+    .doctor h3 {
+        color: #0369a1;
+    }
+
+    .doctor p {
+        color: #64748b;
+    }
+
+
+    /* =========================
+       EMERGENCY
+    ========================== */
+
+    .emergency {
+        padding: 45px;
+
+        border-radius: 25px;
+
+        color: white;
+
+        background:
+            linear-gradient(
+                135deg,
+                #dc2626,
+                #991b1b
+            );
+
+        text-align: center;
+
+        box-shadow:
+            0 20px 40px rgba(220,38,38,.25);
+
+        animation: emergencyPulse 2s infinite;
+    }
+
+    .emergency h2 {
+        font-size: 35px;
+        margin-bottom: 10px;
+    }
+
+    .emergency-number {
+        font-size: 35px;
+        font-weight: bold;
+        margin-top: 15px;
+    }
+
+    @keyframes emergencyPulse {
+
+        0%,100% {
+            box-shadow:
+                0 20px 40px rgba(220,38,38,.25);
+        }
+
+        50% {
+            box-shadow:
+                0 20px 55px rgba(220,38,38,.5);
+        }
+
+    }
+
+
+    /* =========================
+       CONTACT
+    ========================== */
+
+    .contact-form {
+        max-width: 650px;
+        margin: auto;
+
+        padding: 40px;
+
+        background: white;
+
+        border-radius: 25px;
+
+        box-shadow:
+            0 15px 40px rgba(0,0,0,.1);
+    }
+
+    .contact-form input,
+    .contact-form textarea,
+    .contact-form select {
+
+        width: 100%;
+
+        padding: 14px;
+
+        margin-bottom: 16px;
+
+        border: 1px solid #cbd5e1;
+
+        border-radius: 10px;
+
+        font-size: 16px;
+
+        outline: none;
+    }
+
+    .contact-form textarea {
+        height: 120px;
+        resize: none;
+    }
+
+    .contact-form button {
+        width: 100%;
+    }
+
+
+    /* =========================
+       FOOTER
+    ========================== */
+
+    footer {
+        text-align: center;
+
+        padding: 30px;
+
+        background: #082f49;
+
+        color: white;
+    }
+
+
+    /* =========================
+       MODAL
+    ========================== */
+
+    .modal {
+        display: none;
+
+        position: fixed;
+
+        inset: 0;
+
+        z-index: 2000;
+
+        background:
+            rgba(0,0,0,.7);
+
+        align-items: center;
+        justify-content: center;
+
+        padding: 20px;
+    }
+
+    .modal-content {
+
+        width: 100%;
+        max-width: 500px;
+
+        background: white;
+
+        padding: 35px;
+
+        border-radius: 25px;
+
+        position: relative;
+
+        animation:
+            modalOpen .4s ease;
+    }
+
+    .modal-content h2 {
+        color: #0369a1;
+        margin-bottom: 20px;
+    }
+
+    .close {
+        position: absolute;
+
+        right: 20px;
+        top: 15px;
+
+        font-size: 28px;
+
+        cursor: pointer;
+
+        color: #64748b;
+    }
+
+    @keyframes modalOpen {
+
+        from {
+            opacity: 0;
+            transform:
+                scale(.7)
+                rotateX(20deg);
+        }
+
+        to {
+            opacity: 1;
+            transform:
+                scale(1)
+                rotateX(0);
+        }
+
+    }
+
+
+    /* =========================
+       TOP BUTTON
+    ========================== */
+
+    #topBtn {
+
+        display: none;
+
+        position: fixed;
+
+        bottom: 25px;
+        right: 25px;
+
+        width: 50px;
+        height: 50px;
+
+        border: none;
+
+        border-radius: 50%;
+
+        background: #0284c7;
+
+        color: white;
+
+        font-size: 22px;
+
+        cursor: pointer;
+
+        z-index: 1000;
+    }
+
+
+    /* =========================
+       MOBILE
+    ========================== */
+
+    @media(max-width:800px) {
+
+        .menu {
+            display: block;
+        }
+
+        .nav-links {
+            display: none;
+
+            position: absolute;
+
+            top: 70px;
+            left: 0;
+
+            width: 100%;
+
+            flex-direction: column;
+
+            text-align: center;
+
+            background: white;
+
+            padding: 25px;
+        }
+
+        .nav-links.active {
+            display: flex;
+        }
+
+        .hero {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .scene {
+            width: 320px;
+            height: 320px;
+
+            transform: scale(.75);
+        }
+
+        section {
+            padding: 70px 5%;
+        }
+
+        .section-title {
+            font-size: 32px;
+        }
+
+    }
+
+</style>
+```
+
+</head>
+
+<body>
+
+```
+<!-- BACKGROUND -->
+
+<div class="background">
+
+    <div class="bubble"></div>
+
+    <div class="bubble"></div>
+
+    <div class="bubble"></div>
+
+</div>
+
+
+<!-- NAVIGATION -->
+
+<nav>
+
+    <div class="logo">
+        🏥 City Care Hospital
+    </div>
+
+    <div
+        class="menu"
+        onclick="toggleMenu()">
+        ☰
+    </div>
+
+    <ul
+        class="nav-links"
+        id="navLinks">
+
+        <li>
+            <a href="#home">Home</a>
+        </li>
+
+        <li>
+            <a href="#about">About</a>
+        </li>
+
+        <li>
+            <a href="#departments">Departments</a>
+        </li>
+
+        <li>
+            <a href="#doctors">Doctors</a>
+        </li>
+
+        <li>
+            <a href="#contact">Contact</a>
+        </li>
+
+    </ul>
+
+</nav>
+
+
+<!-- HERO -->
+
+<section
+    class="hero"
+    id="home">
+
+    <div class="hero-text">
+
+        <h1>
+
+            Quality
+
+            <span class="gradient">
+                Healthcare
+            </span>
+
+            for Everyone
+
+        </h1>
+
+        <p>
+
+            City Care Hospital provides modern healthcare
+            facilities with experienced doctors and trained
+            medical staff.
+
+        </p>
+
+        <div>
+
+            <button
+                class="btn primary"
+                onclick="openAppointment()">
+
+                📅 Book Appointment
+
+            </button>
+
+            <a
+                href="#departments"
+                class="btn secondary">
+
+                Explore Departments
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- 3D MEDICAL OBJECT -->
+
+    <div class="scene">
+
+        <div class="medical-box">
+
+            <div class="box-front">
+
+                <div class="cross"></div>
+
+            </div>
+
+            <div class="box-side"></div>
+
+            <div class="box-top"></div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ABOUT -->
+
+<section id="about">
+
+    <h2 class="section-title">
+        About City Care Hospital
+    </h2>
+
+    <p class="section-text">
+        Providing compassionate healthcare using modern
+        medical facilities and experienced professionals.
+    </p>
+
+    <div class="about-card">
+
+        <p>
+
+            City Care Hospital provides modern healthcare
+            facilities with experienced doctors and trained
+            medical staff. Our goal is to provide safe,
+            accessible and patient-focused healthcare services.
+
+        </p>
+
+    </div>
+
+
+    <!-- STATS -->
+
+    <div class="stats">
+
+        <div class="stat">
+
+            <h2
+                class="counter"
+                data-target="50000">
+                0
+            </h2>
+
+            <p>Patients Served</p>
+
+        </div>
+
+
+        <div class="stat">
+
+            <h2
+                class="counter"
+                data-target="75">
+                0
+            </h2>
+
+            <p>Doctors</p>
+
+        </div>
+
+
+        <div class="stat">
+
+            <h2
+                class="counter"
+                data-target="15">
+                0
+            </h2>
+
+            <p>Departments</p>
+
+        </div>
+
+
+        <div class="stat">
+
+            <h2
+                class="counter"
+                data-target="24">
+                0
+            </h2>
+
+            <p>Hours Emergency</p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- DEPARTMENTS -->
+
+<section id="departments">
+
+    <h2 class="section-title">
+        Our Departments
+    </h2>
+
+    <p class="section-text">
+        Specialized medical departments providing
+        comprehensive healthcare services.
+    </p>
+
+
+    <div class="departments">
+
+
+        <div class="department">
+
+            <div class="department-icon">
+                ❤️
+            </div>
+
+            <h3>
+                Cardiology
+            </h3>
+
+            <p>
+                Specialized care for heart and
+                cardiovascular conditions.
+            </p>
+
+        </div>
+
+
+        <div class="department">
+
+            <div class="department-icon">
+                🧠
+            </div>
+
+            <h3>
+                Neurology
+            </h3>
+
+            <p>
+                Diagnosis and treatment of neurological
+                conditions.
+            </p>
+
+        </div>
+
+
+        <div class="department">
+
+            <div class="department-icon">
+                🦴
+            </div>
+
+            <h3>
+                Orthopedics
+            </h3>
+
+            <p>
+                Comprehensive treatment for bones,
+                joints and muscles.
+            </p>
+
+        </div>
+
+
+        <div class="department">
+
+            <div class="department-icon">
+                🩺
+            </div>
+
+            <h3>
+                General Medicine
+            </h3>
+
+            <p>
+                General medical consultation and
+                preventive healthcare.
+            </p>
+
+        </div>
+
+
+        <div class="department">
+
+            <div class="department-icon">
+                👶
+            </div>
+
+            <h3>
+                Pediatrics
+            </h3>
+
+            <p>
+                Specialized healthcare for children
+                and infants.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- DOCTORS -->
+
+<section id="doctors">
+
+    <h2 class="section-title">
+        Our Doctors
+    </h2>
+
+    <p class="section-text">
+        Experienced healthcare professionals dedicated
+        to patient care.
+    </p>
+
+
+    <div class="doctors">
+
+        <div class="doctor">
+
+            <div class="doctor-avatar">
+                👨‍⚕️
+            </div>
+
+            <h3>
+                Dr. Raj Sharma
+            </h3>
+
+            <p>
+                Cardiologist
+            </p>
+
+        </div>
+
+
+        <div class="doctor">
+
+            <div class="doctor-avatar">
+                👩‍⚕️
+            </div>
+
+            <h3>
+                Dr. Priya Singh
+            </h3>
+
+            <p>
+                Neurologist
+            </p>
+
+        </div>
+
+
+        <div class="doctor">
+
+            <div class="doctor-avatar">
+                👨‍⚕️
+            </div>
+
+            <h3>
+                Dr. Amit Verma
+            </h3>
+
+            <p>
+                Orthopedic Specialist
+            </p>
+
+        </div>
+
+
+        <div class="doctor">
+
+            <div class="doctor-avatar">
+                👩‍⚕️
+            </div>
+
+            <h3>
+                Dr. Neha Gupta
+            </h3>
+
+            <p>
+                Pediatrician
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- EMERGENCY -->
+
+<section>
+
+    <div class="emergency">
+
+        <h2>
+            🚨 24/7 Emergency Services
+        </h2>
+
+        <p>
+            Emergency services are available 24 hours
+            a day, 7 days a week.
+        </p>
+
+        <div class="emergency-number">
+            📞 9876543210
+        </div>
+
+        <br>
+
+        <button
+            class="btn"
+            style="background:white;color:#dc2626;"
+            onclick="callEmergency()">
+
+            Call Emergency
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- CONTACT -->
+
+<section id="contact">
+
+    <h2 class="section-title">
+        Contact Us
+    </h2>
+
+    <p class="section-text">
+        Have a question? Send us a message.
+    </p>
+
+
+    <form
+        class="contact-form"
+        onsubmit="sendMessage(event)">
+
+        <input
+            type="text"
+            id="name"
+            placeholder="Your Name"
+            required>
+
+        <input
+            type="email"
+            id="email"
+            placeholder="Your Email"
+            required>
+
+        <textarea
+            id="message"
+            placeholder="Your Message"
+            required></textarea>
+
+        <button
+            class="btn primary"
+            type="submit">
+
+            Send Message
+
+        </button>
+
+    </form>
+
+</section>
+
+
+<!-- APPOINTMENT MODAL -->
+
+<div
+    class="modal"
+    id="appointmentModal">
+
+    <div class="modal-content">
+
+        <span
+            class="close"
+            onclick="closeAppointment()">
+
+            ×
+
+        </span>
+
+        <h2>
+            📅 Book Appointment
+        </h2>
+
+        <form
+            onsubmit="bookAppointment(event)">
+
+            <input
+                type="text"
+                placeholder="Patient Name"
+                required
+                style="width:100%;padding:14px;margin-bottom:15px;">
+
+            <input
+                type="tel"
+                placeholder="Phone Number"
+                required
+                style="width:100%;padding:14px;margin-bottom:15px;">
+
+            <select
+                required
+                style="width:100%;padding:14px;margin-bottom:15px;">
+
+                <option value="">
+                    Select Department
+                </option>
+
+                <option>Cardiology</option>
+                <option>Neurology</option>
+                <option>Orthopedics</option>
+                <option>General Medicine</option>
+                <option>Pediatrics</option>
+
+            </select>
+
+            <input
+                type="date"
+                required
+                style="width:100%;padding:14px;margin-bottom:20px;">
+
+            <button
+                class="btn primary"
+                style="width:100%;">
+
+                Confirm Appointment
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+    <p>
+        © 2026 City Care Hospital
+    </p>
+
+    <p>
+        Quality Healthcare for Everyone
+    </p>
+
+</footer>
+
+
+<!-- TOP BUTTON -->
+
+<button
+    id="topBtn"
+    onclick="goTop()">
+
+    ↑
+
+</button>
+
+
+<script>
+
+
+    /* =========================
+       MOBILE MENU
+    ========================== */
+
+    function toggleMenu() {
+
+        document
+            .getElementById("navLinks")
+            .classList
+            .toggle("active");
+
+    }
+
+
+    /* =========================
+       APPOINTMENT MODAL
+    ========================== */
+
+    function openAppointment() {
+
+        document
+            .getElementById("appointmentModal")
+            .style.display = "flex";
+
+    }
+
+
+    function closeAppointment() {
+
+        document
+            .getElementById("appointmentModal")
+            .style.display = "none";
+
+    }
+
+
+    function bookAppointment(event) {
+
+        event.preventDefault();
+
+        alert(
+            "✅ Appointment request submitted successfully!"
+        );
+
+        closeAppointment();
+
+        event.target.reset();
+
+    }
+
+
+    /* =========================
+       EMERGENCY
+    ========================== */
+
+    function callEmergency() {
+
+        const answer =
+            confirm(
+                "Call Emergency: 9876543210?"
+            );
+
+        if (answer) {
+
+            window.location.href =
+                "tel:9876543210";
+
+        }
+
+    }
+
+
+    /* =========================
+       CONTACT FORM
+    ========================== */
+
+    function sendMessage(event) {
+
+        event.preventDefault();
+
+        const name =
+            document.getElementById("name").value;
+
+        alert(
+            "Thank you " +
+            name +
+            "! Your message has been submitted."
+        );
+
+        event.target.reset();
+
+    }
+
+
+    /* =========================
+       COUNTER ANIMATION
+    ========================== */
+
+    const counters =
+        document.querySelectorAll(".counter");
+
+    counters.forEach(counter => {
+
+        const target =
+            Number(counter.dataset.target);
+
+        let current = 0;
+
+        const update = () => {
+
+            const increment =
+                target / 100;
+
+            if (current < target) {
+
+                current += increment;
+
+                counter.textContent =
+                    Math.ceil(current);
+
+                setTimeout(update, 20);
+
+            } else {
+
+                counter.textContent =
+                    target.toLocaleString() + "+";
+
+            }
+
+        };
+
+        update();
+
+    });
+
+
+    /* =========================
+       TOP BUTTON
+    ========================== */
+
+    const topButton =
+        document.getElementById("topBtn");
+
+    window.addEventListener(
+        "scroll",
+        () => {
+
+            if (window.scrollY > 400) {
+
+                topButton.style.display =
+                    "block";
+
+            } else {
+
+                topButton.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+
+    function goTop() {
+
+        window.scrollTo({
+
+            top: 0,
+
+            behavior: "smooth"
+
+        });
+
+    }
+
+
+    /* =========================
+       CLOSE MODAL
+    ========================== */
+
+    window.addEventListener(
+        "click",
+        event => {
+
+            const modal =
+                document.getElementById(
+                    "appointmentModal"
+                );
+
+            if (event.target === modal) {
+
+                closeAppointment();
+
+            }
+
+        }
+    );
+
+
+    /* =========================
+       3D MOUSE TILT
+    ========================== */
+
+    document
+        .querySelectorAll(
+            ".department"
+        )
+        .forEach(card => {
+
+            card.addEventListener(
+                "mousemove",
+                event => {
+
+                    const rect =
+                        card.getBoundingClientRect();
+
+                    const x =
+                        event.clientX -
+                        rect.left;
+
+                    const y =
+                        event.clientY -
+                        rect.top;
+
+                    const centerX =
+                        rect.width / 2;
+
+                    const centerY =
+                        rect.height / 2;
+
+                    const rotateX =
+                        ((y - centerY) /
+                        centerY) * -8;
+
+                    const rotateY =
+                        ((x - centerX) /
+                        centerX) * 8;
+
+                    card.style.transform =
+                        `perspective(1000px)
+                         rotateX(${rotateX}deg)
+                         rotateY(${rotateY}deg)
+                         translateY(-10px)`;
+
+                }
+            );
+
+
+            card.addEventListener(
+                "mouseleave",
+                () => {
+
+                    card.style.transform =
+                        "";
+
+                }
+            );
+
+        });
+
+
+    /* =========================
+       CLOSE MOBILE MENU
+    ========================== */
+
+    document
+        .querySelectorAll(".nav-links a")
+        .forEach(link => {
+
+            link.addEventListener(
+                "click",
+                () => {
+
+                    document
+                        .getElementById("navLinks")
+                        .classList
+                        .remove("active");
+
+                }
+            );
+
+        });
+
+</script>
+```
+
+</body>
+
+</html>
+<!-- Footer -->
+
+<footer>
+    <div>
+        © 2026 XYZ University · Department of Computer Science
+        <br>
+        Designed with HTML, CSS, JavaScript & Three.js
+    </div>
+
+```
+<!-- Your Name -->
+<div class="creator-name">
+    <span>Created by</span>
+    <strong>UTTAM KUMAR</strong>
+</div>
+```
+
+</footer>
