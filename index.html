@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>City Care Hospital | 3D Healthcare</title>
+<style>
+:root{--ink:#0b2a3c;--blue:#0284c7;--cyan:#06b6d4;--mist:#eef7fb;--mute:#587184;--red:#dc2626}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#eaf6fb,#d9eef7 60%,#eaf6fb);color:var(--ink);overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+
+/* scroll progress */
+#progress{position:fixed;top:0;left:0;height:4px;width:0;z-index:3000;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:1000;display:flex;justify-content:space-between;align-items:center;padding:16px 7%;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);box-shadow:0 4px 20px rgba(0,0,0,.07);transition:padding .3s}
+nav.small{padding:10px 7%}
+.logo{color:var(--blue);font-size:24px;font-weight:bold}
+.nav-links{display:flex;list-style:none;gap:26px}
+.nav-links a{text-decoration:none;font-weight:bold;padding-bottom:4px;border-bottom:2px solid transparent;transition:.3s}
+.nav-links a:hover,.nav-links a.on{color:var(--blue);border-color:var(--blue)}
+.menu{display:none;font-size:28px;cursor:pointer;background:none;border:0}
+
+/* HERO (Three.js canvas) */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:flex-start;text-align:left;padding:120px 8% 60px}
+#stage{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.hero-text{position:relative;max-width:760px;padding:40px;border-radius:30px;background:rgba(255,255,255,.55);backdrop-filter:blur(8px);transform-style:preserve-3d;will-change:transform}
+.hero-text h1{font-size:clamp(44px,7vw,78px);line-height:1.03;margin-bottom:20px}
+.hero-text h1 span{display:inline-block;background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-text p{color:var(--mute);font-size:19px;margin-bottom:30px;line-height:1.5}
+.btn{display:inline-block;padding:14px 26px;border:0;border-radius:30px;cursor:pointer;text-decoration:none;font-weight:bold;font-size:16px;transition:.3s}
+.primary{background:linear-gradient(90deg,var(--blue),var(--cyan));color:#fff}
+.secondary{margin-left:8px;background:#fff;color:var(--blue);border:2px solid var(--blue);margin-left:8px}
+.btn:hover{transform:translateY(-5px);box-shadow:0 14px 26px rgba(2,132,199,.28)}
+
+/* SECTIONS + reveal */
+section{padding:90px 8%}
+.section-title{text-align:center;font-size:40px;color:#0369a1;margin-bottom:12px}
+.section-text{text-align:center;max-width:720px;margin:0 auto 45px;color:#3f5a6d;line-height:1.5}
+.section-title{text-shadow:0 2px 18px rgba(255,255,255,.9)}
+.reveal{opacity:0;transform:translateY(50px) rotateX(-12deg);transform-origin:50% 100%;transition:opacity .8s,transform .8s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ABOUT */
+.about-card{max-width:900px;margin:auto;padding:40px;background:rgba(255,255,255,.85);border-radius:25px;border:1px solid #dbeafe;box-shadow:0 15px 40px rgba(15,23,42,.1)}
+.about-card p{text-align:center;color:#475569;font-size:18px;line-height:1.6}
+.stats{margin-top:50px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px}
+.stat{background:#fff;padding:30px;text-align:center;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,.08)}
+.stat h2{color:var(--blue);font-size:40px}
+.stat p{color:var(--mute)}
+
+/* 3D TILT CARDS */
+.grid{display:grid;gap:25px}
+.departments{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.doctors{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.tilt{position:relative;background:#fff;padding:30px;border-radius:20px;text-align:center;box-shadow:0 10px 25px rgba(0,0,0,.08);transform-style:preserve-3d;transition:transform .15s ease-out,box-shadow .3s;overflow:hidden}
+.tilt.dept{border-top:5px solid var(--blue);min-height:240px}
+.tilt:hover{box-shadow:0 28px 50px rgba(2,132,199,.22)}
+.tilt::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.75),transparent 55%)}
+.tilt:hover::after{opacity:1}
+.tilt .icon{font-size:55px;margin-bottom:15px;transform:translateZ(45px)}
+.tilt h3{color:#0369a1;margin-bottom:10px;transform:translateZ(30px)}
+.tilt p{color:var(--mute);transform:translateZ(15px)}
+.avatar{width:90px;height:90px;margin:0 auto 15px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;background:linear-gradient(135deg,#bae6fd,#67e8f9);transform:translateZ(45px)}
+
+/* EMERGENCY */
+.emergency{padding:45px;border-radius:25px;color:#fff;background:linear-gradient(135deg,var(--red),#991b1b);text-align:center;animation:pulse 2s infinite}
+.emergency h2{font-size:35px;margin-bottom:10px}
+.emergency-number{font-size:35px;font-weight:bold;margin:15px 0 20px}
+@keyframes pulse{0%,100%{box-shadow:0 20px 40px rgba(220,38,38,.25)}50%{box-shadow:0 20px 60px rgba(220,38,38,.55)}}
+
+/* FORMS */
+.contact-form{max-width:650px;margin:auto;padding:40px;background:#fff;border-radius:25px;box-shadow:0 15px 40px rgba(0,0,0,.1)}
+input,textarea,select{width:100%;padding:14px;margin-bottom:16px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;font-family:inherit}
+textarea{height:120px;resize:none}
+.contact-form button,.modal-content button.btn{width:100%}
+
+/* FOOTER */
+footer{text-align:center;padding:34px;background:#082f49;color:#fff;line-height:1.7}
+.creator-name{margin-top:12px;font-size:15px}
+.creator-name strong{color:var(--cyan);letter-spacing:1px}
+
+/* MODAL */
+.modal{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.7);align-items:center;justify-content:center;padding:20px;perspective:1000px}
+.modal-content{width:100%;max-width:500px;background:#fff;padding:35px;border-radius:25px;position:relative;animation:open .45s ease}
+.modal-content h2{color:#0369a1;margin-bottom:20px}
+.close{position:absolute;right:20px;top:12px;font-size:30px;cursor:pointer;color:var(--mute);background:none;border:0}
+@keyframes open{from{opacity:0;transform:scale(.7) rotateX(25deg)}to{opacity:1;transform:none}}
+
+#topBtn{display:none;position:fixed;bottom:25px;right:25px;width:50px;height:50px;border:0;border-radius:50%;background:var(--blue);color:#fff;font-size:22px;cursor:pointer;z-index:1000}
+
+@media(max-width:800px){
+ .menu{display:block}
+ .nav-links{display:none;position:absolute;top:100%;left:0;width:100%;flex-direction:column;text-align:center;background:#fff;padding:25px}
+ .nav-links.active{display:flex}
+ .hero{text-align:center;justify-content:center}
+ .secondary{margin:10px 0 0}
+ .hero{justify-content:center;align-items:flex-end;text-align:center;padding-top:300px}
+ section{padding:70px 5%}
+ .section-title{font-size:32px}
+}
+@media(prefers-reduced-motion:reduce){
+ .reveal{opacity:1;transform:none;transition:none}
+ .emergency{animation:none}
+ html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<canvas id="stage" aria-hidden="true"></canvas>
+<div id="progress"></div>
+
+<nav id="nav">
+  <div class="logo">🏥 City Care Hospital</div>
+  <button class="menu" onclick="toggleMenu()" aria-label="Open menu">☰</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#departments">Departments</a></li>
+    <li><a href="#doctors">Doctors</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+    <div class="hero-text" id="heroText">
+    <h1>Quality <span>Healthcare</span> for Everyone</h1>
+    <p>City Care Hospital provides modern healthcare facilities with experienced doctors and trained medical staff.</p>
+    <button class="btn primary" onclick="openAppointment()">📅 Book Appointment</button>
+    <a href="#departments" class="btn secondary">Explore Departments</a>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <h2 class="section-title reveal">About City Care Hospital</h2>
+  <p class="section-text reveal">Providing compassionate healthcare using modern medical facilities and experienced professionals.</p>
+  <div class="about-card reveal">
+    <p>City Care Hospital provides modern healthcare facilities with experienced doctors and trained medical staff. Our goal is to provide safe, accessible and patient-focused healthcare services.</p>
+  </div>
+  <div class="stats">
+    <div class="stat reveal"><h2 class="counter" data-target="50000">0</h2><p>Patients Served</p></div>
+    <div class="stat reveal"><h2 class="counter" data-target="75">0</h2><p>Doctors</p></div>
+    <div class="stat reveal"><h2 class="counter" data-target="15">0</h2><p>Departments</p></div>
+    <div class="stat reveal"><h2 class="counter" data-target="24">0</h2><p>Hours Emergency</p></div>
+  </div>
+</section>
+
+<!-- DEPARTMENTS -->
+<section id="departments">
+  <h2 class="section-title reveal">Our Departments</h2>
+  <p class="section-text reveal">Specialized medical departments providing comprehensive healthcare services.</p>
+  <div class="grid departments">
+    <div class="tilt dept reveal"><div class="icon">❤️</div><h3>Cardiology</h3><p>Specialized care for heart and cardiovascular conditions.</p></div>
+    <div class="tilt dept reveal"><div class="icon">🧠</div><h3>Neurology</h3><p>Diagnosis and treatment of neurological conditions.</p></div>
+    <div class="tilt dept reveal"><div class="icon">🦴</div><h3>Orthopedics</h3><p>Comprehensive treatment for bones, joints and muscles.</p></div>
+    <div class="tilt dept reveal"><div class="icon">🩺</div><h3>General Medicine</h3><p>General medical consultation and preventive healthcare.</p></div>
+    <div class="tilt dept reveal"><div class="icon">👶</div><h3>Pediatrics</h3><p>Specialized healthcare for children and infants.</p></div>
+  </div>
+</section>
+
+<!-- DOCTORS -->
+<section id="doctors">
+  <h2 class="section-title reveal">Our Doctors</h2>
+  <p class="section-text reveal">Experienced healthcare professionals dedicated to patient care.</p>
+  <div class="grid doctors">
+    <div class="tilt reveal"><div class="avatar">👨‍⚕️</div><h3>Dr. Raj Sharma</h3><p>Cardiologist</p></div>
+    <div class="tilt reveal"><div class="avatar">👩‍⚕️</div><h3>Dr. Priya Singh</h3><p>Neurologist</p></div>
+    <div class="tilt reveal"><div class="avatar">👨‍⚕️</div><h3>Dr. Amit Verma</h3><p>Orthopedic Specialist</p></div>
+    <div class="tilt reveal"><div class="avatar">👩‍⚕️</div><h3>Dr. Neha Gupta</h3><p>Pediatrician</p></div>
+  </div>
+</section>
+
+<!-- EMERGENCY -->
+<section>
+  <div class="emergency reveal">
+    <h2>🚨 24/7 Emergency Services</h2>
+    <p>Emergency services are available 24 hours a day, 7 days a week.</p>
+    <div class="emergency-number">📞 9876543210</div>
+    <button class="btn" style="background:#fff;color:#dc2626" onclick="callEmergency()">Call Emergency</button>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <h2 class="section-title reveal">Contact Us</h2>
+  <p class="section-text reveal">Have a question? Send us a message.</p>
+  <form class="contact-form reveal" onsubmit="sendMessage(event)">
+    <input type="text" id="name" placeholder="Your Name" required>
+    <input type="email" id="email" placeholder="Your Email" required>
+    <textarea id="message" placeholder="Your Message" required></textarea>
+    <button class="btn primary" type="submit">Send Message</button>
+  </form>
+</section>
+
+<!-- APPOINTMENT MODAL -->
+<div class="modal" id="appointmentModal">
+  <div class="modal-content">
+    <button class="close" onclick="closeAppointment()" aria-label="Close">×</button>
+    <h2>📅 Book Appointment</h2>
+    <form onsubmit="bookAppointment(event)">
+      <input type="text" placeholder="Patient Name" required>
+      <input type="tel" placeholder="Phone Number" required>
+      <select required>
+        <option value="">Select Department</option>
+        <option>Cardiology</option><option>Neurology</option><option>Orthopedics</option>
+        <option>General Medicine</option><option>Pediatrics</option>
+      </select>
+      <input type="date" required>
+      <button class="btn primary">Confirm Appointment</button>
+    </form>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 City Care Hospital · Quality Healthcare for Everyone</p>
+  <p>Designed with HTML, CSS, JavaScript &amp; Three.js</p>
+  <div class="creator-name"><span>Created by</span> <strong>UTTAM KUMAR</strong></div>
+</footer>
+
+<button id="topBtn" onclick="goTop()" aria-label="Back to top">↑</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = id => document.getElementById(id);
+
+/* ===== FULL-PAGE 3D BACKGROUND (Three.js) — camera travels down the scene as you scroll ===== */
+(function(){
+  if (typeof THREE === "undefined") return;           // fallback: plain gradient if CDN blocked
+  const canvas = $("stage");
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0xe6f4fa, 12, 34);
+  const camera = new THREE.PerspectiveCamera(50, 1, .1, 80);
+  camera.position.set(0,0,12);
+
+  scene.add(new THREE.AmbientLight(0xffffff, .85));
+  const l1 = new THREE.PointLight(0x67e8f9, 1.3, 80); l1.position.set(8,6,10); scene.add(l1);
+  const l2 = new THREE.PointLight(0x0284c7, 1.1, 80); l2.position.set(-9,-6,6); scene.add(l2);
+
+  const DEPTH = 46;                                   // world height covered by the page
+  const rnd = (a,b)=>a+Math.random()*(b-a);
+  const items = [];
+
+  // medical crosses scattered down the page
+  const crossMat = new THREE.MeshStandardMaterial({color:0x0ea5e9, metalness:.3, roughness:.3, transparent:true, opacity:.85});
+  const armV = new THREE.BoxGeometry(.5,1.6,.5), armH = new THREE.BoxGeometry(1.6,.5,.5);
+  for (let i=0;i<16;i++){
+    const g = new THREE.Group();
+    g.add(new THREE.Mesh(armV,crossMat), new THREE.Mesh(armH,crossMat));
+    const side = i%2 ? 1 : -1;
+    g.position.set(side*rnd(4,9), -i*(DEPTH/16)+rnd(-1,1), rnd(-6,1));
+    const s = rnd(.8,1.9); g.scale.setScalar(s);
+    g.rotation.set(rnd(0,6),rnd(0,6),0);
+    items.push({o:g, rx:rnd(.1,.4), ry:rnd(.2,.6), ph:rnd(0,6), base:g.position.y});
+    scene.add(g);
+  }
+
+  // hero centrepiece: big glossy medical cross + halo rings
+  const hero3d = new THREE.Group();
+  const bigMat = new THREE.MeshStandardMaterial({color:0x0ea5e9, metalness:.4, roughness:.2});
+  hero3d.add(new THREE.Mesh(new THREE.BoxGeometry(1.3,4.2,1.3),bigMat), new THREE.Mesh(new THREE.BoxGeometry(4.2,1.3,1.3),bigMat));
+  hero3d.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.3,4.2,1.3)), new THREE.LineBasicMaterial({color:0xffffff})));
+  const rings=[1,2].map(i=>{
+    const r=new THREE.Mesh(new THREE.TorusGeometry(2.6+i*.7,.03,8,80), new THREE.MeshBasicMaterial({color:i%2?0x06b6d4:0x0284c7}));
+    r.rotation.x=1.2*i; hero3d.add(r); return r;
+  });
+  scene.add(hero3d);
+
+  // floating cells
+  const cellGeo = new THREE.SphereGeometry(1,20,20);
+  for (let i=0;i<70;i++){
+    const m = new THREE.Mesh(cellGeo, new THREE.MeshStandardMaterial({
+      color:i%3?0x06b6d4:0xffffff, transparent:true, opacity:.55, roughness:.2}));
+    m.scale.setScalar(rnd(.12,.45));
+    m.position.set(rnd(-11,11), -rnd(0,DEPTH), rnd(-9,2));
+    items.push({o:m, rx:0, ry:0, ph:rnd(0,6), base:m.position.y, cell:true});
+    scene.add(m);
+  }
+
+  // DNA helices
+  function helix(x,y){
+    const g = new THREE.Group();
+    for (let i=0;i<46;i++){
+      const a=i*.34, yy=(i-23)*.2;
+      [0,Math.PI].forEach((o,k)=>{
+        const p = new THREE.Mesh(new THREE.SphereGeometry(.09,10,10),
+          new THREE.MeshBasicMaterial({color:k?0x0284c7:0x22d3ee}));
+        p.position.set(Math.cos(a+o)*1.2, yy, Math.sin(a+o)*1.2); g.add(p);
+      });
+      if (i%3===0){
+        const bar = new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,2.4,6),
+          new THREE.MeshBasicMaterial({color:0xbae6fd}));
+        bar.position.set(0,yy,0); bar.rotation.z=Math.PI/2; bar.rotation.y=-a; g.add(bar);
+      }
+    }
+    g.position.set(x,y,-3); scene.add(g); items.push({o:g, rx:0, ry:.35, ph:0, base:y, spin:true});
+  }
+  helix(-7,-4); helix(7.5,-17); helix(-7.5,-31); helix(7,-42);
+
+  // dust particles
+  const N=500, pos=new Float32Array(N*3);
+  for (let i=0;i<N;i++){ pos[i*3]=rnd(-16,16); pos[i*3+1]=-rnd(-4,DEPTH+4); pos[i*3+2]=rnd(-14,4); }
+  const pg = new THREE.BufferGeometry(); pg.setAttribute("position", new THREE.BufferAttribute(pos,3));
+  scene.add(new THREE.Points(pg, new THREE.PointsMaterial({color:0x38bdf8,size:.06,transparent:true,opacity:.7})));
+
+  let mx=0,my=0,cx=0,cy=0;
+  addEventListener("pointermove", e=>{ mx=(e.clientX/innerWidth-.5)*2; my=(e.clientY/innerHeight-.5)*2; });
+  function resize(){
+    renderer.setSize(innerWidth,innerHeight,false); camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+    const wide = innerWidth>800;
+    hero3d.position.set(wide?4.6:0, wide?0:3.4, 0); hero3d.userData.y = hero3d.position.y;
+    hero3d.scale.setScalar(wide?1:.7);
+  }
+  resize(); addEventListener("resize", resize);
+
+  const clock = new THREE.Clock();
+  let camY = 0;
+  (function loop(){
+    requestAnimationFrame(loop);
+    const t = clock.getElapsedTime();
+    const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    const targetY = -(scrollY/max)*DEPTH;
+    camY += (targetY-camY)*.06;                       // smooth camera follow
+    cx += (mx*1.4-cx)*.05; cy += (-my*.9-cy)*.05;
+    camera.position.set(cx, camY+cy, 12);
+    camera.rotation.z = Math.sin(t*.2)*.02 + mx*.03;
+    if (!reduce){
+      hero3d.rotation.y = t*.6 + mx*.6; hero3d.rotation.x = Math.sin(t*.7)*.25 + my*.3;
+      hero3d.position.y = hero3d.userData.y + Math.sin(t*1.2)*.3;
+      rings.forEach((r,i)=>{ r.rotation.z = t*(.3+i*.2); });
+      items.forEach(it=>{
+        it.o.rotation.x += it.rx*.01; it.o.rotation.y += it.ry*.01;
+        it.o.position.y = it.base + Math.sin(t*.8+it.ph)*(it.cell?.5:.35);
+      });
+    }
+    renderer.render(scene,camera);
+  })();
+})();
+
+/* ===== NAV ===== */
+function toggleMenu(){ $("navLinks").classList.toggle("active"); }
+document.querySelectorAll(".nav-links a").forEach(l=>l.addEventListener("click",()=>$("navLinks").classList.remove("active")));
+
+/* ===== MODAL / ACTIONS ===== */
+function openAppointment(){ $("appointmentModal").style.display="flex"; }
+function closeAppointment(){ $("appointmentModal").style.display="none"; }
+function bookAppointment(e){ e.preventDefault(); alert("✅ Appointment request submitted successfully!"); closeAppointment(); e.target.reset(); }
+function callEmergency(){ if (confirm("Call Emergency: 9876543210?")) location.href="tel:9876543210"; }
+function sendMessage(e){ e.preventDefault(); alert("Thank you "+$("name").value+"! Your message has been submitted."); e.target.reset(); }
+function goTop(){ scrollTo({top:0, behavior:"smooth"}); }
+addEventListener("click", e=>{ if (e.target===$("appointmentModal")) closeAppointment(); });
+addEventListener("keydown", e=>{ if (e.key==="Escape") closeAppointment(); });
+
+/* ===== SCROLL: progress bar, navbar, top button, active link ===== */
+const links = [...document.querySelectorAll(".nav-links a")];
+const secs = links.map(a=>document.querySelector(a.getAttribute("href")));
+addEventListener("scroll", ()=>{
+  const max = document.documentElement.scrollHeight - innerHeight;
+  $("progress").style.width = (scrollY/max*100)+"%";
+  $("nav").classList.toggle("small", scrollY>60);
+  $("topBtn").style.display = scrollY>400 ? "block" : "none";
+  let cur = 0; secs.forEach((s,i)=>{ if (s && s.offsetTop-200 <= scrollY) cur=i; });
+  links.forEach((a,i)=>a.classList.toggle("on", i===cur));
+  if (!reduce) $("heroText").style.transform = `translateY(${scrollY*.15}px)`;
+}, {passive:true});
+
+/* ===== REVEAL + COUNTERS (run when visible) ===== */
+function count(el){
+  const target = +el.dataset.target; let cur = 0;
+  (function step(){
+    cur += target/80;
+    if (cur < target){ el.textContent = Math.ceil(cur).toLocaleString(); requestAnimationFrame(step); }
+    else el.textContent = target.toLocaleString()+"+";
+  })();
+}
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if (!en.isIntersecting) return;
+    en.target.classList.add("in");
+    const c = en.target.querySelector(".counter"); if (c) count(c);
+    io.unobserve(en.target);
+  });
+}, {threshold:.15});
+document.querySelectorAll(".reveal").forEach((el,i)=>{ el.style.transitionDelay=(i%5)*70+"ms"; io.observe(el); });
+
+/* ===== 3D TILT + GLARE on cards ===== */
+document.querySelectorAll(".tilt").forEach(card=>{
+  card.addEventListener("mousemove", e=>{
+    if (reduce) return;
+    const r = card.getBoundingClientRect(), x = e.clientX-r.left, y = e.clientY-r.top;
+    const rx = (y/r.height-.5)*-16, ry = (x/r.width-.5)*16;
+    card.style.transitionDelay = "0ms";
+    card.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-8px)`;
+    card.style.setProperty("--gx", x/r.width*100+"%");
+    card.style.setProperty("--gy", y/r.height*100+"%");
+  });
+  card.addEventListener("mouseleave", ()=>{ card.style.transform=""; });
+});
+</script>
+</body>
+</html>
